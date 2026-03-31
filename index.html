@@ -68,6 +68,8 @@
     .warn{ color:#ffb14a; }
     .hidden{ display:none; }
     .divider{ height:1px; background:var(--border); margin:12px 0; }
+	.toolsSelect { color:orange; }
+	.thingsSelect { color:#00FFFB; }
   </style>
 <body data-theme="dark">
   <div class="topbar">
@@ -346,11 +348,6 @@
   ];
   const PRESETS = [
     { id:"custom", label:{ru:"— вручную —", en:"— manual —"}, actions:[] },
-    { id:"pickaxe", label:{ru:"Кирка", en:"Pickaxe"}, actions:["draw","bend","punch"] },
-    { id:"axe", label:{ru:"Топор", en:"Axe"}, actions:["upset","any_hit","punch"] },
-	{ id:"shovel", label:{ru:"Лопата", en:"Shovel"}, actions:["any","any_hit","punch"] },
-    { id:"hammer", label:{ru:"Кузнечный молот", en:"Blacksmith Hammer"}, actions:["shrink","punch"] },
-    { id:"tongs_part", label:{ru:"Часть клещей", en:"Tongs Part"}, actions:["bend","draw","any_hit"] },
     { id:"plate", label:{ru:"Пластина", en:"Plate"}, actions:["any_hit","any_hit","any_hit"] },
     { id:"rod", label:{ru:"Стержень", en:"Rod"}, actions:["draw"] },
 	{ id:"gear", label:{ru:"Шестерня", en:"Gear"}, actions:["draw","shrink","any_hit"] },
@@ -358,6 +355,11 @@
 	{ id:"vint", label:{ru:"Винт", en:"Vint"}, actions:["shrink","punch","punch"] },
 	{ id:"ring", label:{ru:"Кольцо", en:"Ring"}, actions:["any_hit","any_hit","any_hit"] },
 	{ id:"small_spring", label:{ru:"Маленькая пружина", en:"Small Spring"}, actions:["bend","bend","any_hit"] },
+	{ id:"pickaxe", label:{ru:"Кирка", en:"Pickaxe"}, actions:["draw","bend","punch"] },
+    { id:"axe", label:{ru:"Топор", en:"Axe"}, actions:["upset","any_hit","punch"] },
+	{ id:"shovel", label:{ru:"Лопата", en:"Shovel"}, actions:["any","any_hit","punch"] },
+    { id:"hammer", label:{ru:"Кузнечный молот", en:"Blacksmith Hammer"}, actions:["shrink","punch"] },
+    { id:"tongs_part", label:{ru:"Часть клещей", en:"Tongs Part"}, actions:["bend","draw","any_hit"] },
   ];
 
   // -----------------------------
@@ -512,6 +514,26 @@
       const o=document.createElement("option");
       o.value=p.id; o.textContent=p.label[lang];
       presetSel.appendChild(o);
+	  switch (o.value) {
+    case 'pickaxe':
+    case 'axe':
+    case 'shovel':
+    case 'hammer':
+    case 'tongs_part':
+      o.classList.add('toolsSelect');
+      break;
+    case 'plate':
+    case 'rod':
+    case 'gear':
+    case 'bolt':
+    case 'vint':
+    case 'ring':
+    case 'small_spring':
+      o.classList.add('thingsSelect');
+      break;
+    default:
+      console.log('Выбран стандартный вариант');
+  }
     });
     presetSel.value = PRESETS.some(p=>p.id===cur) ? cur : "custom";
   }
