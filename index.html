@@ -1,0 +1,843 @@
+<html lang="ru"><div id="in-page-channel-node-id" data-channel-name="in_page_channel_hiH-GU"></div><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TFC калькуляторы</title>
+  <style>
+    :root{
+      --bg:#0f1113; --panel:#1a1d20; --text:#e8e8e8; --muted:#a7a7a7;
+      --border:#2b2f34; --accent:#ff8a00; --accent2:#ffb14a; --input:#111417;
+      --shadow:0 8px 24px rgba(0,0,0,.35);
+    }
+	input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+     -webkit-appearance: none;
+     margin: 0;
+    }
+    body[data-theme="light"]{
+      --bg:#f4f6f8; --panel:#ffffff; --text:#0f1113; --muted:#5a6470;
+      --border:#d9dee5; --accent:#ff7a00; --accent2:#ffb14a; --input:#ffffff;
+      --shadow:0 10px 26px rgba(0,0,0,.10);
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:var(--bg); color:var(--text); line-height:1.35; }
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:10px 14px; border-bottom:1px solid var(--border);
+      background: linear-gradient(#1b1f23, #171a1d);
+    }
+    body[data-theme="light"] .topbar{ background: linear-gradient(#ffffff, #f3f6f9); }
+    .tabs{ display:flex; gap:14px; align-items:center; flex-wrap:wrap; user-select:none; }
+    .tab{ padding:6px 10px; border-radius:10px; color:var(--muted); cursor:pointer; font-weight:600; letter-spacing:.2px; }
+    .tab:hover{ color:var(--text); }
+    .tab.active{ color:var(--accent); text-shadow:0 0 12px rgba(255,138,0,.22); }
+
+    .controls{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .ctrl{
+      display:flex; align-items:center; gap:8px; padding:6px 10px;
+      border:1px solid var(--border); border-radius:12px; background:var(--panel);
+      box-shadow:var(--shadow);
+    }
+    .ctrl label{ font-size:12px; color:var(--muted); }
+
+    select,button,input{
+      font:inherit; color:var(--text); background:var(--input);
+      border:1px solid var(--border); border-radius:10px; padding:6px 8px; outline:none;
+    }
+    body[data-theme="light"] select, body[data-theme="light"] button, body[data-theme="light"] input{ background:#fff; }
+    button{ cursor:pointer; padding:6px 10px; }
+    button:hover{ border-color:var(--accent2); }
+    select.small{ padding:4px 8px; font-size:13px; }
+    input.small{ padding:5px 8px; font-size:13px; width:120px; }
+    input.w80{ width:90px; } input.w120{ width:120px; } input.w160{ width:160px; }
+    input[type="range"]{ width:260px; }
+
+    .wrap{ max-width:1100px; margin:0 auto; padding:14px; }
+    .panel{ background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:14px; box-shadow:var(--shadow); }
+    .panel.flat{ box-shadow:none; }
+    .grid{ display:grid; grid-template-columns:1fr; gap:12px; }
+    @media (min-width:980px){ .grid{ grid-template-columns:1fr 1fr; } }
+    h2{ margin:0 0 8px; font-size:18px; }
+    h3{ margin:0 0 10px; font-size:16px; color:var(--accent2); }
+    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .muted{ color:var(--muted); }
+    .big{ font-size:16px; font-weight:700; }
+    .steps{ white-space:pre-wrap; word-break:break-word; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; font-size:13px; }
+    .pill{ display:inline-block; padding:2px 8px; border:1px solid var(--border); border-radius:999px; margin:2px 6px 2px 0; background:rgba(255,255,255,.03); font-size:12px; }
+    body[data-theme="light"] .pill{ background:#f7f9fb; }
+    .note{ margin-top:8px; font-size:12px; color:var(--muted); }
+    .warn{ color:#ffb14a; }
+    .hidden{ display:none; }
+    .divider{ height:1px; background:var(--border); margin:12px 0; }
+  </style>
+<body data-theme="dark">
+  <div class="topbar">
+    <div class="tabs" role="tablist" aria-label="tabs">
+      <div class="tab" data-tab="dust" data-i18n="tab_dust">Пыль</div>
+      <div class="tab active" data-tab="forge" data-i18n="tab_forge">Ковка</div>
+      <div class="tab" data-tab="alloys" data-i18n="tab_alloys">Сплавы</div>
+    </div>
+
+    <div class="controls">
+      <div class="ctrl">
+        <label data-i18n="lang">Язык</label>
+        <select id="langSel" class="small">
+          <option value="ru">RU</option>
+          <option value="en">EN</option>
+        </select>
+      </div>
+      <div class="ctrl">
+        <label data-i18n="theme">Тема</label>
+        <button id="themeBtn" type="button">Dark</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- DUST -->
+    <section id="tab-dust" class="panel hidden">
+      <h2 data-i18n="dust_title">Калькулятор пылей → целые слитки</h2>
+      <div class="row">
+        <b data-i18n="dust_mb_per">mB в одной пыли:</b>
+        <input id="mbPerDust" class="small w160" type="number" min="1" step="1" placeholder="16">
+        <span class="muted" data-i18n="dust_hint">Слиток = 144 mB</span>
+      </div>
+      <div class="divider"></div>
+      <div class="big" id="dustResult" data-i18n="dust_enter">Введите значение выше.</div>
+      <div class="note" id="dustDetails"></div>
+    </section>
+
+    <!-- FORGE -->
+    <section id="tab-forge" class="panel">
+      <h2 data-i18n="forge_title">Калькулятор ковки (Anvil)</h2>
+      <div class="grid">
+        <div class="panel flat">
+          <h3 data-i18n="forge_inputs">Ввод</h3>
+
+          <div class="row">
+            <b data-i18n="work_now">Work (текущая):</b>
+            <input id="workNow" class="small w80" type="number" min="0" max="150" step="1" value="0">
+            <input id="workNowRange" type="range" min="0" max="150" value="0" hidden="">
+          </div>
+
+          <div class="row" style="margin-top:10px;">
+            <b data-i18n="work_target">Target (цель):</b>
+            <input id="workTarget" class="small w80" type="number" min="0" max="150" step="1" value="75">
+            <input id="workTargetRange" type="range" min="0" max="150" value="75" hidden="">
+          </div>
+
+          <div class="row" style="margin-top:12px;">
+            <b data-i18n="preset">Пресет:</b>
+            <select id="presetSel" class="small"><option value="custom">— вручную —</option><option value="pickaxe">Кирка</option><option value="axe">Топор</option><option value="hammer">Кузнечный молот</option><option value="tongs_part">Часть клещей</option><option value="plate">Пластина</option><option value="rod">Стержень</option></select>
+            <span class="muted" data-i18n="preset_hint">Если действий меньше 3 — они сдвигаются вправо</span>
+          </div>
+
+          <div style="margin-top:12px;">
+            <b data-i18n="last3">Действия (1–3, выравниваются к концу):</b>
+            <div class="row" style="margin-top:8px;">
+              <span class="muted" data-i18n="slot1">1:</span><select id="lastA" class="small"><option value="unset">— (не задано)</option><option value="any">Любое</option><option value="any_hit" style="color:red">Любой удар (−3/−6/−9)</option><option value="any_pos" style="color:green">Любое положительное (+2/+7/+13/+16)</option><option disabled="">──────────</option><option value="punch" style="color:green">Punch (+2)</option><option value="bend" style="color:green">Bend (+7)</option><option value="upset" style="color:green">Upset (+13)</option><option value="shrink" style="color:green">Shrink (+16)</option><option value="lhit" style="color:red">Light Hit (-3)</option><option value="mhit" style="color:red">Medium Hit (-6)</option><option value="hhit" style="color:red">Heavy Hit (-9)</option><option value="draw" style="color:red">Draw (-15)</option></select>
+              <span class="muted" data-i18n="slot2">2:</span><select id="lastB" class="small"><option value="unset">— (не задано)</option><option value="any">Любое</option><option value="any_hit" style="color:red">Любой удар (−3/−6/−9)</option><option value="any_pos" style="color:green">Любое положительное (+2/+7/+13/+16)</option><option disabled="">──────────</option><option value="punch" style="color:green">Punch (+2)</option><option value="bend" style="color:green">Bend (+7)</option><option value="upset" style="color:green">Upset (+13)</option><option value="shrink" style="color:green">Shrink (+16)</option><option value="lhit" style="color:red">Light Hit (-3)</option><option value="mhit" style="color:red">Medium Hit (-6)</option><option value="hhit" style="color:red">Heavy Hit (-9)</option><option value="draw" style="color:red">Draw (-15)</option></select>
+              <span class="muted" data-i18n="slot3">3:</span><select id="lastC" class="small"><option value="unset">— (не задано)</option><option value="any">Любое</option><option value="any_hit" style="color:red">Любой удар (−3/−6/−9)</option><option value="any_pos" style="color:green">Любое положительное (+2/+7/+13/+16)</option><option disabled="">──────────</option><option value="punch" style="color:green">Punch (+2)</option><option value="bend" style="color:green">Bend (+7)</option><option value="upset" style="color:green">Upset (+13)</option><option value="shrink" style="color:green">Shrink (+16)</option><option value="lhit" style="color:red">Light Hit (-3)</option><option value="mhit" style="color:red">Medium Hit (-6)</option><option value="hhit" style="color:red">Heavy Hit (-9)</option><option value="draw" style="color:red">Draw (-15)</option></select>
+            </div>
+            <div class="note" data-i18n="last3_help">“— (не задано)” игнорируется. Недостающие слоты слева заполняются “Любое”.</div>
+          </div>
+
+          <div class="row" style="margin-top:12px;">
+            <button id="calcForgeBtn" type="button" data-i18n="calc">Посчитать</button>
+            <button id="swapForgeBtn" type="button" data-i18n="swap">Поменять</button>
+            <button id="resetForgeBtn" type="button" data-i18n="reset">Сброс</button>
+          </div>
+
+          <div class="divider"></div>
+          <div class="row">
+            <span class="pill">Punch +2</span>
+            <span class="pill">Bend +7</span>
+            <span class="pill">Upset +13</span>
+            <span class="pill">Shrink +16</span>
+            <span class="pill">Light −3</span>
+            <span class="pill">Medium −6</span>
+            <span class="pill">Heavy −9</span>
+            <span class="pill">Draw −15</span>
+          </div>
+        </div>
+
+        <div class="panel flat">
+          <h3 data-i18n="forge_out">Результат</h3>
+          <div class="big" id="forgeResult" data-i18n="press_calc">Готово: 6 шаг(ов).</div>
+          <div class="note" id="forgeMeta">Финал: 75 (должно быть 75).</div>
+          <div class="divider"></div>
+          <div><b data-i18n="sequence">Последовательность:</b></div>
+          <div id="forgeSteps" class="steps" style="margin-top:8px;">01. Bend (+7) : 0 → 7
+02. Bend (+7) : 7 → 14
+03. Upset (+13) : 14 → 27
+04. Shrink (+16) : 27 → 43
+05. Shrink (+16) : 43 → 59
+06. Shrink (+16) : 59 → 75</div>
+          <div class="divider"></div>
+          <div class="note" id="forgeTailCheck">Последние 3 (используется): <code>Любое → Любое → Любое</code><br>Последние 3 (получилось): <code>Shrink → Shrink → Shrink</code><br><b>Совпадает ✅</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ALLOYS -->
+    <section id="tab-alloys" class="panel hidden">
+      <h2 data-i18n="alloys_title">Калькулятор сплавов</h2>
+      <div class="note" data-i18n="alloys_hint">Вводи либо проценты + общий объём, либо mB компонентов. Пустые/0 компоненты не учитываются.</div>
+
+      <div class="grid" style="margin-top:12px;">
+        <!-- Percent -> mB -->
+        <div class="panel flat">
+          <h3 data-i18n="alloys_percent_mode">Проценты → mB</h3>
+
+          <div class="row">
+            <b data-i18n="alloy_total">Итог сплава (mB):</b>
+            <input id="alloyTotalMb" class="small w120" type="number" min="0" step="1" placeholder="144">
+            <span class="muted" id="alloyTotalNote">Если пусто — берём 144 mB</span>
+          </div>
+		<div class="row" style="margin-top:12px;">
+            <b data-i18n="preset">Пресет:</b>
+            <select id="percent_ingots" class="small"><option value="custom">— вручную —</option><option value="bronze">Бронза</option><option value="steel">Сырая сталь</option><option value="black_bronze">Чёрная бронза</option><option value="hammer">Кузнечный молот</option><option value="tongs_part">Часть клещей</option><option value="plate">Пластина</option><option value="rod">Стержень</option><option value="gear">Шестерня</option><option value="bolt">Болт</option><option value="vint">Винт</option><option value="ring">Кольцо</option><option value="small_spring">Маленькая пружина</option></select>
+            <span class="muted" data-i18n="preset_hint">Если действий меньше 3 — они сдвигаются вправо</span>
+          </div>
+          <div class="divider"></div>
+
+          <div class="row"><b data-i18n="percents">Проценты:</b></div>
+          <div class="row" style="margin-top:8px;">
+            <span class="muted" data-i18n="metal1">Металл 1</span><input id="p1" class="small w80" type="number" min="0" step="0.01" placeholder="%">
+            <span class="muted" data-i18n="metal2">Металл 2</span><input id="p2" class="small w80" type="number" min="0" step="0.01" placeholder="%">
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <span class="muted" data-i18n="metal3">Металл 3</span><input id="p3" class="small w80" type="number" min="0" step="0.01" placeholder="%">
+            <span class="muted" data-i18n="metal4">Металл 4</span><input id="p4" class="small w80" type="number" min="0" step="0.01" placeholder="%">
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- moved here (fix #2) -->
+          <div class="row">
+            <b data-i18n="alloys_results">Итоговые mB (по процентам):</b>
+            <span class="muted" data-i18n="these_fill">эти поля заполняются при вводе процентов</span>
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <span class="muted" data-i18n="metal1">Металл 1</span><input id="om1" class="small w120" type="number" readonly="">
+            <span class="muted" data-i18n="metal2">Металл 2</span><input id="om2" class="small w120" type="number" readonly="">
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <span class="muted" data-i18n="metal3">Металл 3</span><input id="om3" class="small w120" type="number" readonly="">
+            <span class="muted" data-i18n="metal4">Металл 4</span><input id="om4" class="small w120" type="number" readonly="">
+          </div>
+
+          <div class="note" id="pctNote"></div>
+        </div>
+
+        <!-- mB -> Percent -->
+        <div class="panel flat">
+          <h3 data-i18n="alloys_mb_mode">mB → проценты</h3>
+
+          <div class="row"><b data-i18n="mb_amounts">Количество (mB):</b></div>
+          <div class="row" style="margin-top:8px;">
+            <span class="muted" data-i18n="metal1">Металл 1</span><input id="m1" class="small w120" type="number" min="0" step="1" placeholder="0">
+            <span class="muted" data-i18n="metal2">Металл 2</span><input id="m2" class="small w120" type="number" min="0" step="1" placeholder="0">
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <span class="muted" data-i18n="metal3">Металл 3</span><input id="m3" class="small w120" type="number" min="0" step="1" placeholder="0">
+            <span class="muted" data-i18n="metal4">Металл 4</span><input id="m4" class="small w120" type="number" min="0" step="1" placeholder="0">
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row">
+            <b data-i18n="alloy_total_calc">Итог сплава (mB):</b>
+            <input id="alloyTotalOut" class="small w120" type="number" readonly="">
+          </div>
+          <div class="divider"></div>
+
+          <div class="row"><b data-i18n="percent_out">Проценты (расчёт):</b></div>
+          <div class="row" style="margin-top:8px;">
+            <span class="muted" data-i18n="metal1">Металл 1</span><input id="op1" class="small w80" type="number" readonly="">
+            <span class="muted" data-i18n="metal2">Металл 2</span><input id="op2" class="small w80" type="number" readonly="">
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <span class="muted" data-i18n="metal3">Металл 3</span><input id="op3" class="small w80" type="number" readonly="">
+            <span class="muted" data-i18n="metal4">Металл 4</span><input id="op4" class="small w80" type="number" readonly="">
+          </div>
+
+          <div class="note" id="mbNote"></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+	  <div class="row">
+            <b data-i18n="ingotsCounts">Количество слитков:</b>
+            <input id="ingotsCount" class="small w120" type="number" min="0" step="1" placeholder="1">
+            <span>Необходимо жидкости: <span id="liquidResult">144</span> mb</span>
+          </div>
+      <div class="row">
+        <button id="clearAlloysBtn" type="button" data-i18n="clear">Очистить</button>
+      </div>
+    </section>
+  </div>
+
+<script>
+(() => {
+  // -----------------------------
+  // i18n strings
+  // -----------------------------
+  const I18N = {
+    ru: {
+      tab_dust:"Пыль", tab_forge:"Ковка", tab_alloys:"Сплавы",
+      lang:"Язык", theme:"Тема",
+      dust_title:"Калькулятор пылей → целые слитки",
+      dust_mb_per:"mB в одной пыли:", dust_hint:"Слиток = 144 mB", dust_enter:"Введите значение выше.",
+      forge_title:"Калькулятор ковки (Anvil)", forge_inputs:"Ввод", forge_out:"Результат",
+      work_now:"Work (текущая):", work_target:"Target (цель):",
+      preset:"Пресет:", preset_hint:"Если действий меньше 3 — они сдвигаются вправо",
+      last3:"Действия (1–3, выравниваются к концу):", slot1:"1:", slot2:"2:", slot3:"3:",
+      last3_help:"“— (не задано)” игнорируется. Недостающие слоты слева заполняются “Любое”.",
+      calc:"Посчитать", swap:"Поменять", reset:"Сброс", press_calc:"Нажми “Посчитать”.", sequence:"Последовательность:",
+      alloys_title:"Калькулятор сплавов",
+      alloys_hint:"Вводи либо проценты + общий объём, либо mB компонентов. Пустые/0 компоненты не учитываются.",
+      alloys_percent_mode:"Проценты → mB", alloys_mb_mode:"mB → проценты",
+      alloy_total:"Итог сплава (mB):", percents:"Проценты:", mb_amounts:"Количество (mB):",
+      alloy_total_calc:"Итог сплава (mB):", percent_out:"Проценты (расчёт):",
+      alloys_results:"Итоговые mB (по процентам):", these_fill:"эти поля заполняются при вводе процентов",
+      metal1:"Металл 1", metal2:"Металл 2", metal3:"Металл 3", metal4:"Металл 4",
+      clear:"Очистить"
+    },
+    en: {
+      tab_dust:"Dust", tab_forge:"Forging", tab_alloys:"Alloys",
+      lang:"Language", theme:"Theme",
+      dust_title:"Dust → whole ingots",
+      dust_mb_per:"mB per dust:", dust_hint:"Ingot = 144 mB", dust_enter:"Enter a value above.",
+      forge_title:"Forging calculator (Anvil)", forge_inputs:"Input", forge_out:"Result",
+      work_now:"Work (current):", work_target:"Target:",
+      preset:"Preset:", preset_hint:"If fewer than 3 actions — they shift to the end",
+      last3:"Actions (1–3, right-aligned):", slot1:"1:", slot2:"2:", slot3:"3:",
+      last3_help:"“— (unset)” is ignored. Missing left slots become “Any”.",
+      calc:"Calculate", swap:"Swap", reset:"Reset", press_calc:"Press “Calculate”.", sequence:"Sequence:",
+      alloys_title:"Alloy calculator",
+      alloys_hint:"Enter either percents + total, or component mB. Empty/0 components are ignored.",
+      alloys_percent_mode:"Percents → mB", alloys_mb_mode:"mB → percents",
+      alloy_total:"Alloy total (mB):", percents:"Percents:", mb_amounts:"Amounts (mB):",
+      alloy_total_calc:"Alloy total (mB):", percent_out:"Percents (calc):",
+      alloys_results:"Resulting mB (from percents):", these_fill:"filled when you enter percents",
+      metal1:"Metal 1", metal2:"Metal 2", metal3:"Metal 3", metal4:"Metal 4",
+      clear:"Clear"
+    }
+  };
+
+  // -----------------------------
+  // Data (Forge)
+  // -----------------------------
+  const ACTIONS = [
+    { id:"punch",  name:{ru:"Штамповать",en:"Punch"}, delta:+2 },
+    { id:"bend",   name:{ru:"Изогнуть",en:"Bend"}, delta:+7 },
+    { id:"upset",  name:{ru:"Обжать",en:"Upset"}, delta:+13 },
+    { id:"shrink", name:{ru:"Усадить",en:"Shrink"}, delta:+16 },
+    { id:"lhit",   name:{ru:"Слабый удар",en:"Light Hit"}, delta:-3 },
+    { id:"mhit",   name:{ru:"Удар",en:"Medium Hit"}, delta:-6 },
+    { id:"hhit",   name:{ru:"Сильный удар",en:"Heavy Hit"}, delta:-9 },
+    { id:"draw",   name:{ru:"Протянуть",en:"Draw"}, delta:-15 },
+  ];
+  const SPECIAL = [
+    { id:"unset",   label:{ru:"— (не задано)", en:"— (unset)"} },
+    { id:"any",     label:{ru:"Любое", en:"Any"} },
+    { id:"any_hit", label:{ru:"Любой удар (−3/−6/−9)", en:"Any hit (−3/−6/−9)"} },
+    { id:"any_pos", label:{ru:"Любое положительное (+2/+7/+13/+16)", en:"Any positive (+2/+7/+13/+16)"} },
+  ];
+  const PRESETS = [
+    { id:"custom", label:{ru:"— вручную —", en:"— manual —"}, actions:[] },
+    { id:"pickaxe", label:{ru:"Кирка", en:"Pickaxe"}, actions:["draw","bend","punch"] },
+    { id:"axe", label:{ru:"Топор", en:"Axe"}, actions:["upset","any_hit","punch"] },
+	{ id:"shovel", label:{ru:"Лопата", en:"Shovel"}, actions:["any","any_hit","punch"] },
+    { id:"hammer", label:{ru:"Кузнечный молот", en:"Blacksmith Hammer"}, actions:["shrink","punch"] },
+    { id:"tongs_part", label:{ru:"Часть клещей", en:"Tongs Part"}, actions:["bend","draw","any_hit"] },
+    { id:"plate", label:{ru:"Пластина", en:"Plate"}, actions:["any_hit","any_hit","any_hit"] },
+    { id:"rod", label:{ru:"Стержень", en:"Rod"}, actions:["draw"] },
+	{ id:"gear", label:{ru:"Шестерня", en:"Gear"}, actions:["draw","shrink","any_hit"] },
+	{ id:"bolt", label:{ru:"Болт", en:"Bolt"}, actions:["draw","draw","punch"] },
+	{ id:"vint", label:{ru:"Винт", en:"Vint"}, actions:["shrink","punch","punch"] },
+	{ id:"ring", label:{ru:"Кольцо", en:"Ring"}, actions:["any_hit","any_hit","any_hit"] },
+	{ id:"small_spring", label:{ru:"Маленькая пружина", en:"Small Spring"}, actions:["bend","bend","any_hit"] },
+  ];
+
+  // -----------------------------
+  // Tabs
+  // -----------------------------
+  const tabs = document.querySelectorAll(".tab");
+  const tabSections = {
+    dust: document.getElementById("tab-dust"),
+    forge: document.getElementById("tab-forge"),
+    alloys: document.getElementById("tab-alloys"),
+  };
+  function showTab(key){
+    tabs.forEach(t => t.classList.toggle("active", t.dataset.tab === key));
+    Object.entries(tabSections).forEach(([k, el]) => el.classList.toggle("hidden", k !== key));
+    localStorage.setItem("tfc_tab", key);
+  }
+  tabs.forEach(t => t.addEventListener("click", () => showTab(t.dataset.tab)));
+
+  // -----------------------------
+  // Theme
+  // -----------------------------
+  const themeBtn = document.getElementById("themeBtn");
+  function applyTheme(theme){
+    document.body.dataset.theme = theme;
+    themeBtn.textContent = theme === "dark" ? "Dark" : "Light";
+    localStorage.setItem("tfc_theme", theme);
+  }
+  themeBtn.addEventListener("click", () => applyTheme(document.body.dataset.theme === "dark" ? "light" : "dark"));
+
+  // -----------------------------
+  // Language
+  // -----------------------------
+  const langSel = document.getElementById("langSel");
+  function setText(){
+    const lang = langSel.value;
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.dataset.i18n;
+      if (I18N[lang] && I18N[lang][key]) el.textContent = I18N[lang][key];
+    });
+    buildForgeSelects();
+    buildPresets();
+    updateDust();
+    calculateForge(true);
+    recalcAlloysFromPercents(true);
+    recalcAlloysFromMb(true);
+  }
+  langSel.addEventListener("change", () => { localStorage.setItem("tfc_lang", langSel.value); setText(); });
+
+  // -----------------------------
+  // Dust calculator
+  // -----------------------------
+  const INGOT_MB = 144;
+  const mbPerDust = document.getElementById("mbPerDust");
+  const dustResult = document.getElementById("dustResult");
+  const dustDetails = document.getElementById("dustDetails");
+  function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a; }
+  function updateDust(){
+    const raw = (mbPerDust.value || "").trim();
+    const lang = langSel.value;
+    if(!raw){
+      dustResult.textContent = I18N[lang].dust_enter;
+      dustDetails.textContent = "";
+      return;
+    }
+    const mb = Number(raw);
+    if(!Number.isFinite(mb) || mb<=0 || !Number.isInteger(mb)){
+      dustResult.textContent = lang==="ru" ? "Введите положительное целое число (mB)." : "Enter a positive integer (mB).";
+      dustDetails.textContent = "";
+      return;
+    }
+    const g = gcd(INGOT_MB, mb);
+    const nMin = INGOT_MB / g;
+    const totalMb = nMin * mb;
+    const ingots = totalMb / INGOT_MB;
+    dustResult.textContent = (lang==="ru") ? `Ближайшее количество пылей без остатка: ${nMin} шт.` : `Nearest dust count (no remainder): ${nMin}`;
+    dustDetails.innerHTML = (lang==="ru")
+      ? `Проверка: <code>${nMin} × ${mb} = ${totalMb} mB</code>, это <code>${ingots}</code> слитков.`
+      : `Check: <code>${nMin} × ${mb} = ${totalMb} mB</code> → <code>${ingots}</code> ingots.`;
+  }
+  mbPerDust.addEventListener("input", updateDust);
+
+  // -----------------------------
+  // Forge calculator
+  // -----------------------------
+  const workNow = document.getElementById("workNow");
+  const workNowRange = document.getElementById("workNowRange");
+  const workTarget = document.getElementById("workTarget");
+  const workTargetRange = document.getElementById("workTargetRange");
+  const presetSel = document.getElementById("presetSel");
+  const lastA = document.getElementById("lastA");
+  const lastB = document.getElementById("lastB");
+  const lastC = document.getElementById("lastC");
+  const calcForgeBtn = document.getElementById("calcForgeBtn");
+  const swapForgeBtn = document.getElementById("swapForgeBtn");
+  const resetForgeBtn = document.getElementById("resetForgeBtn");
+  const forgeResult = document.getElementById("forgeResult");
+  const forgeMeta = document.getElementById("forgeMeta");
+  const forgeSteps = document.getElementById("forgeSteps");
+  const forgeTailCheck = document.getElementById("forgeTailCheck");
+
+  function clampInt(v,min,max,fallback){
+    const n = Number(v);
+    if(!Number.isFinite(n)) return fallback;
+    const i = Math.trunc(n);
+    return Math.max(min, Math.min(max, i));
+  }
+  function syncNow(val){
+    const v = clampInt(val,0,150,0);
+    workNow.value = v; workNowRange.value = v;
+  }
+  function syncTarget(val){
+    const v = clampInt(val,0,150,75);
+    workTarget.value = v; workTargetRange.value = v;
+  }
+  workNow.addEventListener("input", () => { syncNow(workNow.value); calculateForge(true); });
+  workNowRange.addEventListener("input", () => { syncNow(workNowRange.value); calculateForge(true); });
+  workTarget.addEventListener("input", () => { syncTarget(workTarget.value); calculateForge(true); });
+  workTargetRange.addEventListener("input", () => { syncTarget(workTargetRange.value); calculateForge(true); });
+
+  function buildForgeSelects(){
+    const lang = langSel.value;
+    function fill(sel){
+      const cur = sel.value || "unset";
+      sel.innerHTML = "";
+      SPECIAL.forEach(s=>{
+        const o=document.createElement("option");
+        o.value=s.id; o.textContent=s.label[lang];
+        sel.appendChild(o);
+      });
+      const sep=document.createElement("option");
+      sep.disabled=true; sep.textContent="──────────";
+      sel.appendChild(sep);
+      ACTIONS.forEach(a=>{
+        const o=document.createElement("option");
+        o.value=a.id;
+        const sign = a.delta>0?"+":"";
+        o.textContent = `${a.name[lang]} (${sign}${a.delta})`;
+        sel.appendChild(o);
+      });
+      sel.value = cur;
+      if(!sel.value) sel.value = "unset";
+    }
+    fill(lastA); fill(lastB); fill(lastC);
+  }
+
+  function buildPresets(){
+    const lang = langSel.value;
+    const cur = presetSel.value || "custom";
+    presetSel.innerHTML = "";
+    PRESETS.forEach(p=>{
+      const o=document.createElement("option");
+      o.value=p.id; o.textContent=p.label[lang];
+      presetSel.appendChild(o);
+    });
+    presetSel.value = PRESETS.some(p=>p.id===cur) ? cur : "custom";
+  }
+
+  function rightAlignTo3(actions){
+    const res=["any","any","any"];
+    const n=Math.min(3, actions.length);
+    for(let i=0;i<n;i++) res[3-n+i]=actions[i];
+    return res;
+  }
+  function applyPreset(pid){
+    const p = PRESETS.find(x=>x.id===pid) || PRESETS[0];
+    const aligned = rightAlignTo3(p.actions || []);
+    lastA.value = aligned[0]; lastB.value = aligned[1]; lastC.value = aligned[2];
+  }
+  presetSel.addEventListener("change", () => {
+    if(presetSel.value !== "custom") applyPreset(presetSel.value);
+    calculateForge(true);
+  });
+  [lastA,lastB,lastC].forEach(sel=>{
+    sel.addEventListener("change", () => { presetSel.value="custom"; calculateForge(true); });
+  });
+
+  function normalizedWant3(){
+    const raw=[lastA.value,lastB.value,lastC.value];
+    const chosen=raw.filter(v=>v!=="unset");
+    return rightAlignTo3(chosen);
+  }
+  function matchesSlot(slot, actionId){
+    if(slot==="any") return true;
+    if(slot==="any_hit") return (actionId==="lhit"||actionId==="mhit"||actionId==="hhit");
+    if(slot==="any_pos") return (actionId==="punch"||actionId==="bend"||actionId==="upset"||actionId==="shrink");
+    return slot===actionId;
+  }
+  function matchesConstraint(tail3Ids, want3){
+    for(let i=0;i<3;i++){
+      const got=tail3Ids[i];
+      if(got===null) return false;
+      if(!matchesSlot(want3[i], got)) return false;
+    }
+    return true;
+  }
+  function encodeState(pos,t0,t1,t2){ return (((pos*9+t0)*9+t1)*9+t2); }
+  function decodeState(key){
+    const t2=key%9; key=Math.floor(key/9);
+    const t1=key%9; key=Math.floor(key/9);
+    const t0=key%9; key=Math.floor(key/9);
+    return {pos:key,t0,t1,t2};
+  }
+  function idxToId(idx){ return idx===8?null:ACTIONS[idx].id; }
+  function idxToName(idx){ return idx===8 ? "(none)" : ACTIONS[idx].name[langSel.value]; }
+
+  function findPathWithTail(start, goal, want3){
+    const maxStates = 151*9*9*9;
+    const visited = new Uint8Array(maxStates);
+    const prevKey = new Int32Array(maxStates); prevKey.fill(-1);
+    const prevAct = new Int16Array(maxStates); prevAct.fill(-1);
+
+    const startKey = encodeState(start,8,8,8);
+    visited[startKey]=1;
+    const q=[startKey];
+
+    while(q.length){
+      const curKey=q.shift();
+      const cur=decodeState(curKey);
+
+      for(let aIdx=0;aIdx<ACTIONS.length;aIdx++){
+        const a=ACTIONS[aIdx];
+        const nxtPos=cur.pos+a.delta;
+        if(nxtPos<0||nxtPos>150) continue;
+
+        const nt0=cur.t1, nt1=cur.t2, nt2=aIdx;
+        const nxtKey=encodeState(nxtPos,nt0,nt1,nt2);
+        if(visited[nxtKey]) continue;
+
+        visited[nxtKey]=1;
+        prevKey[nxtKey]=curKey;
+        prevAct[nxtKey]=aIdx;
+
+        if(nxtPos===goal){
+          const tail=[idxToId(nt0), idxToId(nt1), idxToId(nt2)];
+          if(matchesConstraint(tail, want3)){
+            const path=[];
+            let k=nxtKey;
+            while(k!==startKey){ path.push(prevAct[k]); k=prevKey[k]; }
+            path.reverse();
+            return {actions:path, endKey:nxtKey};
+          }
+        }
+        q.push(nxtKey);
+      }
+    }
+    return null;
+  }
+
+  function labelOfSlot(v){
+    const s = SPECIAL.find(x=>x.id===v);
+    return s ? s.label[langSel.value] : v;
+  }
+
+  function calculateForge(silent=false){
+    const lang = langSel.value;
+    const start=clampInt(workNow.value,0,150,0);
+    const goal=clampInt(workTarget.value,0,150,75);
+    syncNow(start); syncTarget(goal);
+
+    const want3 = normalizedWant3();
+    const sol = findPathWithTail(start, goal, want3);
+
+    if(!sol){
+      forgeResult.textContent = (lang==="ru") ? "Не найдено решение под выбранные последние 3 действия." : "No solution found for selected last 3 actions.";
+      forgeMeta.innerHTML = `<span class="warn">${(lang==="ru") ? "Попробуй ослабить условия (добавь “Любое”) или измени Target/Work." : "Try relaxing constraints (use “Any”) or change Target/Work."}</span>`;
+      forgeSteps.textContent = "";
+      forgeTailCheck.textContent = "";
+      return;
+    }
+
+    const end = decodeState(sol.endKey);
+    const tailIds=[idxToId(end.t0), idxToId(end.t1), idxToId(end.t2)];
+    const tailNames=[idxToName(end.t0), idxToName(end.t1), idxToName(end.t2)];
+
+    let pos=start;
+    const lines=[];
+    sol.actions.forEach((aIdx,i)=>{
+      const a=ACTIONS[aIdx];
+      const next=pos+a.delta;
+      const sign=a.delta>0?"+":"";
+	  const color = a.delta > 0 ? 'green' : 'red';
+
+      lines.push(`<div style="color: ${color}">${String(i + 1).padStart(2, "0")}. ${a.name[lang]} (${sign}${a.delta}) : ${pos} → ${next}</div>`);
+      pos=next;
+    });
+
+    forgeResult.textContent = (lang==="ru") ? `Готово: ${sol.actions.length} шаг(ов).` : `Done: ${sol.actions.length} step(s).`;
+    forgeMeta.textContent = (lang==="ru") ? `Финал: ${pos} (должно быть ${goal}).` : `Final: ${pos} (should be ${goal}).`;
+	if(lines.length){
+		forgeSteps.innerHTML = lines.join("");
+	} else {
+		forgeSteps.textContent = lang === "ru" ? "(нажатия не нужны)" : "(no presses needed)";
+	}
+    const wantPretty = want3.map(labelOfSlot).join(" → ");
+    const gotPretty = tailNames.join(" → ");
+    const ok = matchesConstraint(tailIds, want3);
+
+    forgeTailCheck.innerHTML =
+      `${(lang==="ru") ? "Последние 3 (используется):" : "Last 3 (used):"} <code>${wantPretty}</code><br>`+
+      `${(lang==="ru") ? "Последние 3 (получилось):" : "Last 3 (result):"} <code>${gotPretty}</code><br>`+
+      (ok ? `<b>${(lang==="ru") ? "Совпадает ✅" : "Matches ✅"}</b>` : `<b class="warn">${(lang==="ru") ? "Не совпадает ❌" : "Doesn't match ❌"}</b>`);
+  }
+
+  calcForgeBtn.addEventListener("click", () => calculateForge(false));
+  swapForgeBtn.addEventListener("click", ()=>{
+    const a=clampInt(workNow.value,0,150,0);
+    const b=clampInt(workTarget.value,0,150,75);
+    syncNow(b); syncTarget(a);
+    calculateForge(false);
+  });
+  resetForgeBtn.addEventListener("click", ()=>{
+    syncNow(0); syncTarget(75);
+    presetSel.value="custom";
+    lastA.value="unset"; lastB.value="unset"; lastC.value="unset";
+    forgeResult.textContent = I18N[langSel.value].press_calc;
+    forgeMeta.textContent=""; forgeSteps.textContent=""; forgeTailCheck.textContent="";
+    calculateForge(true);
+  });
+
+  // -----------------------------
+  // Alloys calculator (two-way)
+  // Fix #2: DO NOT write normalized percents back into inputs
+  // -----------------------------
+  
+  const alloyPresets = {
+    "bronze": [25, 75, 0, 0],   // Металл 1, 2, 3, 4
+    "black_bronze": [16.7, 16.7, 66.8, 0],    // Металл 1, 2, 3, 4
+    "steel": [25, 25, 50, 0],
+    "custom": [0, 0, 0, 0]      // Вручную — очистка
+};
+  
+  const selectPresetIngot = document.getElementById('percent_ingots');
+  const metalInputs = [
+    document.getElementById('p1'),
+    document.getElementById('p2'),
+    document.getElementById('p3'),	
+    document.getElementById('p4')
+];
+  selectPresetIngot.addEventListener('change', (event) => {
+    const selectedValue = event.target.value;
+    const percentages = alloyPresets[selectedValue];
+
+    if (percentages) {
+        percentages.forEach((value, index) => {
+            // Заполняем поле, если оно существует
+            if (metalInputs[index]) {
+                metalInputs[index].value = value > 0 ? value : ''; 
+            }
+        });
+    }recalcMbIngots(false);
+});
+  const alloyTotalMb = document.getElementById("alloyTotalMb");
+  const alloyTotalNote = document.getElementById("alloyTotalNote");
+  const pctNote = document.getElementById("pctNote");
+  const mbNote = document.getElementById("mbNote");
+  const ingotsCount = document.getElementById("ingotsCount");
+  const resultSpan  = document.getElementById("liquidResult");
+
+  const pInputs = [1,2,3,4].map(i=>document.getElementById("p"+i));
+  const mInputs = [1,2,3,4].map(i=>document.getElementById("m"+i));
+  const outMb = [1,2,3,4].map(i=>document.getElementById("om"+i));
+  const outPct = [1,2,3,4].map(i=>document.getElementById("op"+i));
+  const alloyTotalOut = document.getElementById("alloyTotalOut");
+  const clearAlloysBtn = document.getElementById("clearAlloysBtn");
+
+  let lockAlloys = false;
+  function num(v){ const n=Number(v); return Number.isFinite(n)?n:0; }
+  function round2(x){ return Math.round(x*100)/100; }
+
+  function recalcAlloysFromPercents(silent=false){
+    if(lockAlloys) return;
+    lockAlloys = true;
+    try{
+      const lang = langSel.value;
+
+      let total = num(alloyTotalMb.value);
+      if(!alloyTotalMb.value.trim()){
+        total = 144;
+        alloyTotalNote.textContent = (lang==="ru") ? "Если пусто — берём 144 mB" : "If empty — using 144 mB";
+      } else {
+        alloyTotalNote.textContent = "";
+      }
+
+      // Only count metals with percent > 0
+      const ps = pInputs.map(x=>num(x.value));
+      const sum = ps.reduce((a,b)=>a+b,0);
+
+      if(sum <= 0){
+        pctNote.textContent = silent ? "" : (lang==="ru" ? "Введи проценты хотя бы для одного металла." : "Enter percents for at least one metal.");
+        outMb.forEach(o=>o.value="");
+        return;
+      }
+
+      const scale = 100 / sum;
+      const norm = ps.map(p => p>0 ? p*scale : 0);
+
+      if(Math.abs(sum - 100) > 0.01){
+        pctNote.textContent = (lang==="ru")
+          ? `Сумма процентов = ${round2(sum)}%. Расчёт выполнен с нормализацией до 100%.`
+          : `Sum = ${round2(sum)}%. Calculated with normalization to 100%.`;
+      } else {
+        pctNote.textContent = "";
+      }
+
+      const mbs = norm.map(p => total * (p/100));
+      outMb.forEach((o,i)=> o.value = round2(mbs[i]) || 0);
+    } finally {
+      lockAlloys = false;
+    }
+  }
+
+  function recalcAlloysFromMb(silent=false){
+    if(lockAlloys) return;
+    lockAlloys = true;
+    try{
+      const lang = langSel.value;
+      const mbs = mInputs.map(x=>num(x.value));
+      const total = mbs.reduce((a,b)=>a+b,0);
+      alloyTotalOut.value = total ? Math.round(total) : 0;
+
+      if(total <= 0){
+        mbNote.textContent = silent ? "" : (lang==="ru" ? "Введи mB хотя бы для одного металла." : "Enter mB for at least one metal.");
+        outPct.forEach(o=>o.value="");
+        return;
+      }
+
+      mbNote.textContent = "";
+      const pcts = mbs.map(m => (m/total)*100);
+      outPct.forEach((o,i)=> o.value = round2(pcts[i]));
+    } finally {
+      lockAlloys = false;
+    }
+  }
+
+function recalcMbIngots() {
+    const count = parseFloat(ingotsCount.value) || 0; 
+    const totalLiquid = count * 144;           
+    alloyTotalMb.value = totalLiquid;
+	recalcAlloysFromPercents();
+    resultSpan.textContent = totalLiquid;
+}
+  ingotsCount.addEventListener("input", () => recalcMbIngots());
+  alloyTotalMb.addEventListener("input", () => recalcAlloysFromPercents());
+  pInputs.forEach(inp => inp.addEventListener("input", () => recalcAlloysFromPercents()));
+  mInputs.forEach(inp => inp.addEventListener("input", () => recalcAlloysFromMb()));
+
+  clearAlloysBtn.addEventListener("click", () => {
+    alloyTotalMb.value="";
+    pInputs.forEach(x=>x.value="");
+    mInputs.forEach(x=>x.value="");
+    outMb.forEach(x=>x.value="");
+    outPct.forEach(x=>x.value="");
+    alloyTotalOut.value="";
+    pctNote.textContent=""; mbNote.textContent=""; alloyTotalNote.textContent="";
+    recalcAlloysFromPercents(true);
+    recalcAlloysFromMb(true);
+  });
+
+  // -----------------------------
+  // Init
+  // -----------------------------
+  function init(){
+    langSel.value = localStorage.getItem("tfc_lang") || "ru";
+    applyTheme(localStorage.getItem("tfc_theme") || "dark");
+    showTab(localStorage.getItem("tfc_tab") || "dust");
+
+    // Build forge UI
+    buildForgeSelects();
+    buildPresets();
+
+    // Defaults
+    presetSel.value = "custom";
+    lastA.value="unset"; lastB.value="unset"; lastC.value="unset";
+
+    setText();
+  }
+  init();
+})();
+</script>
+
+
+</body></html>
